@@ -53,4 +53,4 @@ pipelines:
             - gcloud auth activate-service-account bitbucket-pipelines@ms--tiber-com-lib--pro--8bd7.iam.gserviceaccount.com --key-file=credentials.json --project=ms--tiber-com-lib--pro--8bd7 --project ms--tiber-com-lib--pro--8bd7
             - poetry self add keyrings.google-artifactregistry-auth
             - poetry build
-            - poetry publish -r syscorp-librarian 
+            - poetry publish -r syscorp-librarian

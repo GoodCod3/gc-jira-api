@@ -1,6 +1,5 @@
 from gc_jira_api.Requestor import RequestExecutor
 
-
 POSSIBLE_DISABLE_WORDS = [
     "zz(archived)",
     "zz(archivado)",
@@ -10,7 +9,11 @@ POSSIBLE_DISABLE_WORDS = [
 
 class JiraProject:
     def __init__(self, jira_username, jira_password, jira_server) -> None:
-        self.requestor = RequestExecutor(jira_username, jira_password, jira_server)
+        self.requestor = RequestExecutor(
+            jira_username,
+            jira_password,
+            jira_server,
+        )
 
     def get_all_projects(self, filter_by_active=True):
         def _is_project_active(project):
