@@ -203,3 +203,42 @@ class JiraProject:
 
     def get_user_groups(self, user_id: str):
         return self.requestor.fetch_data(f"user/groups?accountId={user_id}")
+
+    def bulk_issue_create(self, issues):
+        def _create_issue_batches():
+            batch_size = 50
+            batches = []
+            if issues:
+                for i in range(0, len(issues), batch_size):
+                    batch = issues[i : i + batch_size]  # noqa: E203
+                    batches.append(batch)
+            return batches
+
+        results = []
+        for issue_batch in _create_issue_batches():
+            result = self.requestor.fetch_data(
+                "issue/bulk",
+                method="POST",
+                url_params={"issueUpdates": issue_batch},
+            )
+
+            results.append(result)
+
+        return results
+
+    def get_custom_field_contexts(self, custom_field: str):
+        return self.requestor.fetch_data(f"field/{custom_field}/contexts")
+
+    def get_custom_field_options(self, custom_field: str, context_id: int):
+        return self.requestor.fetch_data(
+            f"field/{custom_field}/context/{context_id}/option"
+        )
+
+    def create_custom_field_options(
+        self, custom_field: str, context_id: int, data: dict
+    ):
+        return self.requestor.fetch_data(
+            f"field/{custom_field}/context/{context_id}/option",
+            method="POST",
+            url_params=data,
+        )
