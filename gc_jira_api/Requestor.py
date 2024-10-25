@@ -49,7 +49,19 @@ class RequestExecutor:
                 data = response.json()
                 if isinstance(data, dict) and "values" in data.keys():
                     all_records.extend(data["values"])
-                    next_url = data.get("nextPage", None)
+
+                    if "nextPage" in data:
+                        next_url = data["nextPage"]
+
+                    elif "isLast" in data and not data["isLast"]:
+                        start_at = data.get("startAt", 0) + data.get(
+                            "maxResults", 0
+                        )
+                        next_url = f"{url}?startAt={start_at}"
+
+                    else:
+                        next_url = None
+
                 else:
                     next_url = None
                     all_records = data
@@ -95,6 +107,9 @@ class RequestExecutor:
                     params=url_params,
                 )
 
+            if response.status_code == 400:
+                logging.error(response.json())
+
             response.raise_for_status()
 
             return response
@@ -115,7 +130,7 @@ class RequestExecutor:
             time.sleep(next_seconds)
 
             return self._make_request(url, url_params, retry_count + 1, method)
-        except requests.exceptions.RequestException as e:
+        except (requests.exceptions.RequestException, Exception) as e:
             logging.error(
                 f"[ERROR - _make_request]: Request failed due to an unexpected error: {e}"  # noqa: E501
             )
