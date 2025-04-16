@@ -16,7 +16,7 @@ pre-commit:
 	pre-commit run --all-files
 
 freeze-dependencies:
-	poetry export -f requirements.txt --output requirements.txt --without-hashes
+	poetry export -f requirements.txt --output requirements.txt --without-hashes --with dev
 
 release-major:
 	@poetry version major && \
