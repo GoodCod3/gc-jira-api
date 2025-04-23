@@ -220,3 +220,15 @@ class JiraProject:
 
     def get_issue_by_id(self, issue_id: str):
         return self.requestor.fetch_data(f"issue/{issue_id}")
+
+    def get_all_project_issues(self, project_key: str):
+        return self.requestor.fetch_data(
+            f"search?jql=project={project_key}&maxResults=1000&startAt=0",
+        )
+
+    def get_issue_worklogs(
+        self, issue_id: str, starter_after=None, starter_before=None
+    ):
+        return self.requestor.fetch_data(
+            f"issue/{issue_id}/worklog?startedAfter={starter_after}&startedBefore={starter_before}",  # noqa: E501
+        )
