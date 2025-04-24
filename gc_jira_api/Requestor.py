@@ -116,6 +116,7 @@ class RequestExecutor:
         except (
             requests.exceptions.Timeout,
             requests.exceptions.TooManyRedirects,
+            requests.exceptions.RequestException
         ) as e:
             if retry_count >= MAX_RETRIES:
                 logging.error(
@@ -130,9 +131,3 @@ class RequestExecutor:
             time.sleep(next_seconds)
 
             return self._make_request(url, url_params, retry_count + 1, method)
-        except (requests.exceptions.RequestException, Exception) as e:
-            logging.error(
-                f"[ERROR - _make_request]: Request failed due to an unexpected error: {e}"  # noqa: E501
-            )
-
-            return None
