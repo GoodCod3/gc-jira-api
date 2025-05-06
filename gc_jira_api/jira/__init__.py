@@ -222,9 +222,24 @@ class JiraProject:
         return self.requestor.fetch_data(f"issue/{issue_id}")
 
     def get_all_project_issues(self, project_key: str):
-        return self.requestor.fetch_data(
-            f"search?jql=project={project_key}&maxResults=1000&startAt=0",
-        )
+        all_issues = []
+        start_at = 0
+        max_results = 100
+
+        while True:
+            response = self.requestor.fetch_data(
+                f"search?jql=project={project_key}&maxResults={max_results}&startAt={start_at}"
+            )
+
+            issues = response.get("issues", [])
+            all_issues.extend(issues)
+
+            if start_at + max_results >= response.get("total", 0):
+                break  # Ya se recuperaron todos los resultados
+
+            start_at += max_results
+
+        return {"issues": all_issues}
 
     def get_issue_worklogs(
         self, issue_id: str, starter_after=None, starter_before=None
