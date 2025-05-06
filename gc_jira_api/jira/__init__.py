@@ -228,7 +228,7 @@ class JiraProject:
 
         while True:
             response = self.requestor.fetch_data(
-                f"search?jql=project={project_key}&maxResults={max_results}&startAt={start_at}"
+                f"search?jql=project={project_key}&maxResults={max_results}&startAt={start_at}"  # noqa: E501
             )
 
             issues = response.get("issues", [])
