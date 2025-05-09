@@ -116,7 +116,7 @@ class RequestExecutor:
         except (
             requests.exceptions.Timeout,
             requests.exceptions.TooManyRedirects,
-            requests.exceptions.RequestException
+            requests.exceptions.RequestException,
         ) as e:
             if retry_count >= MAX_RETRIES:
                 logging.error(

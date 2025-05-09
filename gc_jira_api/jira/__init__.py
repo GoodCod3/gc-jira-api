@@ -242,8 +242,26 @@ class JiraProject:
         return {"issues": all_issues}
 
     def get_issue_worklogs(
-        self, issue_id: str, starter_after=None, starter_before=None
+        self,
+        issue_id: str,
+        starter_after=None,
+        starter_before=None,
     ):
-        return self.requestor.fetch_data(
-            f"issue/{issue_id}/worklog?startedAfter={starter_after}&startedBefore={starter_before}",  # noqa: E501
-        )
+        all_worklogs = []
+        start_at = 0
+        max_results = 100
+
+        while True:
+            response = self.requestor.fetch_data(
+                f"issue/{issue_id}/worklog?startedAfter={starter_after}&startedBefore={starter_before}&maxResults={max_results}&startAt={start_at}",  # noqa: E501
+            )
+
+            worklogs = response.get("worklogs", [])
+            all_worklogs.extend(worklogs)
+
+            if start_at + max_results >= response.get("total", 0):
+                break
+
+            start_at += max_results
+
+        return {"worklogs": all_worklogs}
