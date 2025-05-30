@@ -90,9 +90,10 @@ class JiraProject:
             for project in project_info:
                 if project["name"] == project_name:
                     selected_project = project
+                    break
 
             if selected_project:
-                return _get_project_data(project_info=project)
+                return _get_project_data(project_info=selected_project)
 
             return {"error": "Many projects found."}
 
