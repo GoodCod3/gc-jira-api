@@ -5,7 +5,7 @@ import time
 import requests
 from requests.auth import HTTPBasicAuth
 
-from gc_jira_api.exceptions import JiraException
+from gc_jira_api.exceptions.JiraException import JiraException
 
 JIRA_BASE_ENDPOINT = "rest/api/3"
 MAX_RETRIES = 3
