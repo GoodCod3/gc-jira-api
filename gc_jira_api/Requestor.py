@@ -5,6 +5,8 @@ import time
 import requests
 from requests.auth import HTTPBasicAuth
 
+from gc_jira_api.exceptions import JiraException
+
 JIRA_BASE_ENDPOINT = "rest/api/3"
 MAX_RETRIES = 3
 BACKOFF_FACTOR = 2
@@ -123,7 +125,7 @@ class RequestExecutor:
                     f"[ERROR - _make_request]: Request failed after {MAX_RETRIES} attempts due to: {e}"  # noqa: E501
                 )
 
-                return None
+                raise JiraException(f"Error making Jira request: {e}")
             next_seconds = BACKOFF_FACTOR**retry_count
             logging.warning(
                 f"[ERROR - _make_request]: Request timeout or too many redirects, retrying in {next_seconds} seconds ({url})"  # noqa: E501
