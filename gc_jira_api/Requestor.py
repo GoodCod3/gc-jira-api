@@ -14,6 +14,7 @@ HEADERS = {
     "Accept": "application/json",
     "Content-Type": "application/json",
 }
+HEADER_RETRY_CODE = 429  # Too Many Requests
 
 
 class RequestExecutor:
@@ -109,8 +110,24 @@ class RequestExecutor:
                     params=url_params,
                 )
 
-            if response.status_code == 400:
+            if response.status_code >= 400:
                 logging.error(response.json())
+
+            if response.status_code == HEADER_RETRY_CODE:
+                retry_after = response.headers.get("Retry-After")
+                if retry_after is not None and retry_count < MAX_RETRIES:
+                    wait_seconds = int(retry_after)
+                    logging.warning(
+                        f"[ERROR - _make_request]: Code {response.status_code}. Waiting {wait_seconds} seconds according to Retry-After header"  # noqa: E501
+                    )
+                    time.sleep(wait_seconds)
+                    logging.info(
+                        f"[INFO - _make_request]: Retrying request to {url} (retry count: {retry_count + 1})"  # noqa: E501
+                    )
+                    # Retry the request with incremented retry count
+                    return self._make_request(
+                        url, url_params, retry_count + 1, method
+                    )
 
             response.raise_for_status()
 
