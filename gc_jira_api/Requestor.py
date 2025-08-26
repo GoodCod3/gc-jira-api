@@ -110,8 +110,10 @@ class RequestExecutor:
                     params=url_params,
                 )
 
-            if response.status_code >= 400:
-                logging.error(response.json())
+            if response.status_code != 200:
+                logging.error(
+                    f"[ERROR - _make_request]: Request to {url} failed with status code {response.status_code} and response: {response.text}"  # noqa: E501
+                )
 
             if response.status_code == HEADER_RETRY_CODE:
                 retry_after = response.headers.get("Retry-After")
