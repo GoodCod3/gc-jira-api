@@ -224,21 +224,26 @@ class JiraProject:
 
     def get_all_project_issues(self, project_key: str):
         all_issues = []
-        start_at = 0
-        max_results = 100
+        next_page_token = None
+        max_results = 5000
 
         while True:
-            response = self.requestor.fetch_data(
-                f"search?jql=project={project_key}&maxResults={max_results}&startAt={start_at}"  # noqa: E501
-            )
+            if next_page_token:
+                endpoint = f"search/jql?jql=project={project_key}&nextPageToken={next_page_token}&maxResults={max_results}"  # noqa: E501
+            else:
+                endpoint = f"search/jql?jql=project={project_key}&maxResults={max_results}"  # noqa: E501
+
+            response = self.requestor.fetch_data(endpoint)
 
             issues = response.get("issues", [])
             all_issues.extend(issues)
 
-            if start_at + max_results >= response.get("total", 0):
-                break  # Ya se recuperaron todos los resultados
+            if response.get("isLast", True):
+                break
 
-            start_at += max_results
+            next_page_token = response.get("nextPageToken")
+            if not next_page_token:
+                break
 
         return {"issues": all_issues}
 
