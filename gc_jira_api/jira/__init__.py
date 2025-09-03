@@ -229,9 +229,9 @@ class JiraProject:
 
         while True:
             if next_page_token:
-                endpoint = f"search/jql?jql=project={project_key}&nextPageToken={next_page_token}&maxResults={max_results}"  # noqa: E501
+                endpoint = f"search/jql?jql=project={project_key}&nextPageToken={next_page_token}&maxResults={max_results}&fields=*all"  # noqa: E501
             else:
-                endpoint = f"search/jql?jql=project={project_key}&maxResults={max_results}"  # noqa: E501
+                endpoint = f"search/jql?jql=project={project_key}&maxResults={max_results}&fields=*all"  # noqa: E501
 
             response = self.requestor.fetch_data(endpoint)
 
