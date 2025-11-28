@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from gc_jira_api.jira import JiraProject
 from gc_jira_api.Requestor import RequestExecutor
@@ -12,10 +12,33 @@ JIRA_PASSWORD = "JIRA_PASSWORD_TEST"
 class TestJiraProject(unittest.TestCase):
     @patch.object(RequestExecutor, "fetch_data")
     def test_get_all_projects(self, mock_fetch_data):
-        mock_fetch_data.return_value = [
-            {"name": "Project 1"},
-            {"name": "zz(archived) Project 2"},
-            {"name": "Active Project"},
+        mock_fetch_data.side_effect = [
+            {
+                "values": [
+                    {"name": "Project 1"},
+                    {"name": "zz(archived) Project 2"},
+                ],
+                "isLast": False,
+            },
+            {
+                "values": [
+                    {"name": "Active Project"},
+                ],
+                "isLast": True,
+            },
+            {
+                "values": [
+                    {"name": "Project 1"},
+                    {"name": "zz(archived) Project 2"},
+                ],
+                "isLast": False,
+            },
+            {
+                "values": [
+                    {"name": "Active Project"},
+                ],
+                "isLast": True,
+            },
         ]
 
         jira_project = JiraProject(JIRA_USERNAME, JIRA_PASSWORD, JIRA_SERVER)
@@ -27,6 +50,20 @@ class TestJiraProject(unittest.TestCase):
 
         all_projects = jira_project.get_all_projects(filter_by_active=False)
         self.assertEqual(len(all_projects), 3)
+        mock_fetch_data.assert_has_calls(
+            [
+                call(
+                    "project/search",
+                    url_params={"maxResults": 100, "startAt": 0},
+                    auto_paginate=False,
+                ),
+                call(
+                    "project/search",
+                    url_params={"maxResults": 100, "startAt": 100},
+                    auto_paginate=False,
+                ),
+            ]
+        )
 
     @patch.object(RequestExecutor, "fetch_data")
     def test_get_project_info(self, mock_fetch_data):
