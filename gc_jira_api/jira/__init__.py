@@ -1,4 +1,5 @@
 import logging
+
 from gc_jira_api.Requestor import RequestExecutor
 
 POSSIBLE_DISABLE_WORDS = [
@@ -24,8 +25,10 @@ class JiraProject:
 
     def get_all_projects(self, filter_by_active=True):
         """
-        Retrieve all Jira projects in batches of PROJECTS_PAGE_SIZE using the search endpoint.
+        Retrieve all Jira projects in batches of PROJECTS_PAGE_SIZE using the
+        search endpoint.
         """
+
         def _is_project_active(project):
             project_name_lowercase = project["name"].lower().replace(" ", "")
             for disabled_word in POSSIBLE_DISABLE_WORDS:

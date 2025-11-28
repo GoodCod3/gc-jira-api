@@ -43,8 +43,8 @@ class RequestExecutor:
         auto_paginate=True,
     ):
         """
-        Execute a Jira API request and optionally auto-paginate search responses that contain
-        the Jira `values` payload shape.
+        Execute a Jira API request and optionally auto-paginate search
+        responses that contain the Jira `values` payload shape.
         """
         if not is_absolute_url:
             url = f"{self.jira_server}/{JIRA_BASE_ENDPOINT}/{url}"
