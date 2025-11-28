@@ -1,3 +1,4 @@
+import logging
 from gc_jira_api.Requestor import RequestExecutor
 
 POSSIBLE_DISABLE_WORDS = [
@@ -5,6 +6,12 @@ POSSIBLE_DISABLE_WORDS = [
     "zz(archivado)",
     "zz/archivado)",
 ]
+PROJECTS_PAGE_SIZE = 100
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 
 class JiraProject:
@@ -16,6 +23,9 @@ class JiraProject:
         )
 
     def get_all_projects(self, filter_by_active=True):
+        """
+        Retrieve all Jira projects in batches of PROJECTS_PAGE_SIZE using the search endpoint.
+        """
         def _is_project_active(project):
             project_name_lowercase = project["name"].lower().replace(" ", "")
             for disabled_word in POSSIBLE_DISABLE_WORDS:
@@ -23,7 +33,31 @@ class JiraProject:
                     return False
             return True
 
-        all_projects = self.requestor.fetch_data("project/")
+        all_projects = []
+        start_at = 0
+
+        while True:
+            logging.info(f"Getting projects from Jira... {start_at}")
+            response = self.requestor.fetch_data(
+                "project/search",
+                url_params={
+                    "maxResults": PROJECTS_PAGE_SIZE,
+                    "startAt": start_at,
+                },
+                auto_paginate=False,
+            )
+
+            if not response:
+                break
+
+            current_page = response.get("values", [])
+            all_projects.extend(current_page)
+
+            if response.get("isLast", True) or not current_page:
+                break
+
+            start_at += PROJECTS_PAGE_SIZE
+
         if filter_by_active:
             all_projects = list(filter(_is_project_active, all_projects))
 

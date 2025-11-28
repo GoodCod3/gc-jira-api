@@ -40,9 +40,23 @@ class RequestExecutor:
         url_params: dict = {},
         is_absolute_url=False,
         method="GET",
+        auto_paginate=True,
     ):
+        """
+        Execute a Jira API request and optionally auto-paginate search responses that contain
+        the Jira `values` payload shape.
+        """
         if not is_absolute_url:
             url = f"{self.jira_server}/{JIRA_BASE_ENDPOINT}/{url}"
+
+        if method != "GET" or not auto_paginate:
+            response = self._make_request(url, url_params, 0, method)
+            if response:
+                try:
+                    return response.json()
+                except ValueError:
+                    return response.text
+            return None
 
         next_url = url
         all_records = []
